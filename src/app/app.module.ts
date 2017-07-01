@@ -2,10 +2,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
+import { SelectTopicComponent } from './select-topic/select-topic.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SelectTopicComponent
   ],
   imports: [
     BrowserModule
