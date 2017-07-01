@@ -13,16 +13,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // point static path to dist
-app.use(express.static(path.join(__dirnmae, 'dist')));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 app.use('/api', api);
 
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
 
 const port = process.env.PORT || '3005';
 
 const server = http.createServer(app);
+
 
 server.listen(port, () => console.log(`App listening on port ${port}`));
