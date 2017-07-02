@@ -6,12 +6,9 @@ const passport = require('passport');
 const session = require('express-session');
 const env = require('dotenv').load();
 
-//Models
-var models = require("./app/models");
-
-
-// Get api routes
+// Routes
 const api = require('./server/routes/api');
+const signup = require('./server/routes/signup');
 
 const app = express();
 
@@ -24,25 +21,30 @@ app.use(session({secret: 'keyboard cat', resave: true, saveUninitialized: true})
 app.use(passport.initialize());
 app.use(passport.session()); //persistent login sessions
 
-//Sync Database
-models.sequelize.sync().then(function() {
-
-  console.log('Nice! Database looks fine')
-
-}).catch(function(err) {
-
-  console.log(err, "Something went wrong with the Database Update!")
-
-});
-
-// point static path to dist
+// Point static path to dist
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// Routes Middleware
 app.use('/api', api);
+app.use('/signup', signup);
 
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist/index.html'));
 });
+
+// Models
+var models = require("./app/models");
+
+// Load passport strategies
+require('./config/passport/passport')(passport, models.user);
+
+// Sync Database
+models.sequelize.sync().then(() => {
+  console.log('Nice! Database looks fine')
+}).catch((err) => {
+  console.log(err, "Something went wrong with the Database Update!")
+});
+
 
 const port = process.env.PORT || '3005';
 
