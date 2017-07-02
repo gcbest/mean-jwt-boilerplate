@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {Http} from '@angular/http';
 
 @Component({
   selector: 'app-signin',
@@ -7,7 +8,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SigninComponent implements OnInit {
 
-  constructor() { }
+  constructor(private http: Http) { }
+
+  onSubmit(user) {
+    console.log(user);
+    this.http.post('/signin', user)
+      .subscribe(
+        () => {console.log('user created')},
+        err => console.error(err)
+      );
+  }
 
   ngOnInit() {
   }

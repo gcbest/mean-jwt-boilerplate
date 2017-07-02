@@ -9,6 +9,7 @@ import { SelectTopicComponent } from './select-topic/select-topic.component';
 import { SignupComponent } from './signup/signup.component';
 import {AppRoutingModule} from './app-routing.module';
 import { SigninComponent } from './signin/signin.component';
+import {AuthGuard} from "app/security/auth.guard";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,7 @@ import { SigninComponent } from './signin/signin.component';
     RouterModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
