@@ -1,54 +1,54 @@
 const express = require('express');
 const path = require('path');
-const http = require('http');
 const bodyParser = require('body-parser');
+const cors = require('cors'); // allows you to make requests to your api from a different domain name/port
 const passport = require('passport');
-const session = require('express-session');
-const env = require('dotenv').load();
+const mongoose = require('mongoose');
+const config = require('./config/database');
 
-// Routes
-const api = require('./server/routes/api');
-const signup = require('./server/routes/signup');
+// Connect to Database
+mongoose.connect(config.database);
+
+// Listen for connection
+mongoose.connection.on('connected', () => {
+  console.log(`Connected to database: ${config.database}`);
+});
+
+// Listen for error
+mongoose.connection.on('error', (err) => {
+  console.log(`database error: ${err}`);
+});
 
 const app = express();
 
-// Parsers for POST data
+const users = require('./routes/user-routes');
+
+const port = process.env.PORT || 4000;
+
+// Cors Middleware
+app.use(cors());
+
+// Set Static Folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Body Parser Middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-// For passport authentication
-app.use(session({secret: 'keyboard cat', resave: true, saveUninitialized: true})); //session secret
+// Passport Middleware
 app.use(passport.initialize());
-app.use(passport.session()); //persistent login sessions
+app.use(passport.session());
 
-// Point static path to dist
-app.use(express.static(path.join(__dirname, 'dist')));
+require('./config/passport')(passport);
 
-// Routes Middleware
-app.use('/api', api);
-app.use('/signup', signup);
+// Routes
+app.use('/users', users);
 
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/index.html'));
+// All routes lead here
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
-// Models
-var models = require("./app/models");
-
-// Load passport strategies
-require('./config/passport/passport')(passport, models.user);
-
-// Sync Database
-models.sequelize.sync().then(() => {
-  console.log('Nice! Database looks fine')
-}).catch((err) => {
-  console.log(err, "Something went wrong with the Database Update!")
+// Start Server
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
-
-
-const port = process.env.PORT || '3005';
-
-const server = http.createServer(app);
-
-
-server.listen(port, () => console.log(`App listening on port ${port}`));
